@@ -1,0 +1,6 @@
+{
+  "name": "Coupon Wallet",
+  "description": "A clean, mobile-first personal coupon manager to save, organize, and redeem coupons with AI screenshot extraction and Share Sheet integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
