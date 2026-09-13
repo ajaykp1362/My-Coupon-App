@@ -1,4 +1,4 @@
-name: Build Android App Bundle
+name: Build Android Debug
 
 on:
   push:
@@ -21,5 +21,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Release AAB
-        run: ./gradlew bundleRelease
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
