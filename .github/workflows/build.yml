@@ -31,23 +31,19 @@ jobs:
           keytool -genkey -v -keystore app/my-upload-key.jks -storepass android -alias my-key-alias -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Release, O=Android, C=US"
           cp app/my-upload-key.jks ./my-upload-key.jks
 
-      - name: Inject Credentials and Signing Properties
+      - name: Inject Gemini API Key
         run: |
-          for path in "." "app"; do
-            echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > "$path/local.properties"
-            echo "storeFile=my-upload-key.jks" >> "$path/local.properties"
-            echo "storePassword=android" >> "$path/local.properties"
-            echo "keyAlias=my-key-alias" >> "$path/local.properties"
-            echo "keyPassword=android" >> "$path/local.properties"
-            echo "RELEASE_STORE_FILE=my-upload-key.jks" >> "$path/local.properties"
-            echo "RELEASE_STORE_PASSWORD=android" >> "$path/local.properties"
-            echo "RELEASE_KEY_ALIAS=my-key-alias" >> "$path/local.properties"
-            echo "RELEASE_KEY_PASSWORD=android" >> "$path/local.properties"
-          done
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > local.properties
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > app/local.properties
 
       - name: Build Release Bundle
-        run: ./gradlew bundleRelease
+        run: |
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file=$(pwd)/app/my-upload-key.jks \
+            -Pandroid.injected.signing.store.password=android \
+            -Pandroid.injected.signing.key.alias=my-key-alias \
+            -Pandroid.injected.signing.key.password=android
 
       - name: Upload AAB Artifact
         uses: actions/upload-artifact@v4
