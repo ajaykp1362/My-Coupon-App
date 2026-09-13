@@ -26,14 +26,22 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Inject Gemini API Key
-        run: |
-          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
-          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> local.properties
-
       - name: Generate Release Keystore
         run: |
           keytool -genkey -v -keystore my-upload-key.jks -storepass android -alias my-key-alias -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Release, O=Android, C=US"
+
+      - name: Inject Credentials and Signing Properties
+        run: |
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > local.properties
+          echo "storeFile=my-upload-key.jks" >> local.properties
+          echo "storePassword=android" >> local.properties
+          echo "keyAlias=my-key-alias" >> local.properties
+          echo "keyPassword=android" >> local.properties
+          echo "RELEASE_STORE_FILE=my-upload-key.jks" >> local.properties
+          echo "RELEASE_STORE_PASSWORD=android" >> local.properties
+          echo "RELEASE_KEY_ALIAS=my-key-alias" >> local.properties
+          echo "RELEASE_KEY_PASSWORD=android" >> local.properties
 
       - name: Build Release Bundle
         run: ./gradlew bundleRelease
