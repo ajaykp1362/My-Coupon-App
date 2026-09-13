@@ -31,6 +31,10 @@ jobs:
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> local.properties
 
+      - name: Generate Release Keystore
+        run: |
+          keytool -genkey -v -keystore my-upload-key.jks -storepass android -alias my-key-alias -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Release, O=Android, C=US"
+
       - name: Build Release Bundle
         run: ./gradlew bundleRelease
 
