@@ -26,10 +26,10 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Generate Release Keystore
+      - name: Decode Release Keystore
         run: |
-          keytool -genkey -v -keystore app/my-upload-key.jks -storepass android -alias my-key-alias -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Release, O=Android, C=US"
-          cp app/my-upload-key.jks ./my-upload-key.jks
+          echo "${{ secrets.RELEASE_KEYSTORE_BASE_64 }}" | base64 --decode > app/new-upload-key.jks
+          cp app/new-upload-key.jks ./new-upload-key.jks
 
       - name: Inject Gemini API Key
         run: |
@@ -40,10 +40,10 @@ jobs:
       - name: Build Release Bundle
         run: |
           ./gradlew bundleRelease \
-            -Pandroid.injected.signing.store.file=$(pwd)/app/my-upload-key.jks \
-            -Pandroid.injected.signing.store.password=android \
-            -Pandroid.injected.signing.key.alias=my-key-alias \
-            -Pandroid.injected.signing.key.password=android
+            -Pandroid.injected.signing.store.file=$(pwd)/app/new-upload-key.jks \
+            -Pandroid.injected.signing.store.password="${{ secrets.RELEASE_STORE_PASSWORD }}" \
+            -Pandroid.injected.signing.key.alias="${{ secrets.RELEASE_KEY_ALIAS }}" \
+            -Pandroid.injected.signing.key.password="${{ secrets.RELEASE_KEY_PASSWORD }}"
 
       - name: Upload AAB Artifact
         uses: actions/upload-artifact@v4
